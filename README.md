@@ -15,3 +15,5 @@ Invoke with
 ```bash
 python ldparser.py /directory/containing/ld_file
 ```
+
+Tested with Python 3.9.6
