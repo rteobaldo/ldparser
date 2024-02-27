@@ -465,16 +465,50 @@ if __name__ == '__main__':
         print("Usage: ldparser.py /some/path/")
         exit(1)
 
-    for f in glob.glob('%s/*.ld'%sys.argv[1]):
+    for f in glob.glob('%s/*.ld' % sys.argv[1]):
         print(os.path.basename(f))
 
-        l = ldData.fromfile(f)
+        l = ldData.fromfile(f)  # Load the .ld file
         print(l.head)
         print(list(map(str, l)))
         print()
 
-        # create plots for all channels with the same frequency
-        for f, g in groupby(l.channs, lambda x:x.freq):
-            df = pd.DataFrame({i.name.lower(): i.data for i in g})
-            df.plot()
-            plt.show()
+        all_data = {}
+        max_length = 0
+        output_dir = os.path.join(sys.argv[1], "output")
+
+        for f in glob.glob('%s/*.ld' % sys.argv[1]):
+            print(os.path.basename(f))
+
+            l = ldData.fromfile(f)  # Assuming ldData is your custom class for handling .ld files
+            print(l.head)
+            print(list(map(str, l)))
+            print()
+
+            all_data = {}
+            max_length = 0
+
+            # First pass to find the maximum array length
+            for freq, group in groupby(sorted(l.channs, key=lambda x: x.freq), lambda x: x.freq):
+                for i in group:
+                    max_length = max(max_length, len(i.data))
+
+            # Second pass to pad arrays and collect data
+            for freq, group in groupby(sorted(l.channs, key=lambda x: x.freq), lambda x: x.freq):
+                for i in group:
+                    column_name = f"{i.name.lower()}_freq_{freq}"
+                    # Check if padding is needed and use np.pad for padding
+                    if len(i.data) < max_length:
+                        padded_data = np.pad(i.data, (0, max_length - len(i.data)), 'constant', constant_values=np.nan)
+                    else:
+                        padded_data = i.data
+                    all_data[column_name] = padded_data
+
+            # Create DataFrame from the aggregated and padded data
+            df = pd.DataFrame.from_dict(all_data)
+
+            # Define the output CSV file name
+            csv_file_name = os.path.join(output_dir, f"{os.path.basename(f).replace('.ld', '')}_all_data.csv")
+            # Save DataFrame to CSV
+            df.to_csv(csv_file_name, index=False)
+            print(f"Exported all data to {csv_file_name}") 
