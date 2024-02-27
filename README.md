@@ -12,8 +12,10 @@ See the __main__ function on how to use the tool.
 As an example, the __main__ function reads all ld files in a given directory and creates some plots. 
 Invoke with
 
-```bash
-python ldparser.py /directory/containing/ld_file
-```
+### How to run
 
-Tested with Python 3.9.6
+- `pip install -r requirements.txt`
+- create an directory named `output` at the same directory where `.ld` files are
+- Run `python ldparser.py /directory/containing/ld_file`
+
+Tested with Python `3.9.6`
