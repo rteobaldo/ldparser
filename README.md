@@ -13,5 +13,5 @@ As an example, the __main__ function reads all ld files in a given directory and
 Invoke with
 
 ```bash
-python ldparser.py /path/to/some/dir
+python ldparser.py /directory/containing/ld_file
 ```
